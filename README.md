@@ -1,5 +1,7 @@
 # DevNote
 
+🔗 **Live demo:** [developernote.netlify.app](https://developernote.netlify.app/)
+
 **A developer's project memory.** DevNote is a workspace for keeping the context of your side‑projects alive — not just *what* you're building, but *where you left off* and *why* you made the calls you made.
 
 It tracks projects, to‑dos, rich notes, decisions, files, and a full activity history, and lets you share a project with teammates by e‑mail with role‑based access.
