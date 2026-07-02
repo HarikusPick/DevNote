@@ -1,0 +1,94 @@
+:host { display: block; }
+
+.re {
+  border: 1px solid var(--border-strong);
+  border-radius: var(--radius-sm);
+  background: var(--surface);
+  overflow: hidden;
+}
+.re:focus-within {
+  border-color: var(--accent);
+  box-shadow: 0 0 0 3px var(--accent-ring);
+}
+
+.re-toolbar {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 2px;
+  padding: 6px 8px;
+  border-bottom: 1px solid var(--border);
+  background: var(--bg-sidebar);
+}
+.re-group {
+  display: flex;
+  align-items: center;
+  gap: 1px;
+}
+.re-sep {
+  width: 1px;
+  height: 18px;
+  margin: 0 5px;
+  background: var(--border-strong);
+}
+
+.re-btn {
+  display: grid;
+  place-items: center;
+  min-width: 28px;
+  height: 28px;
+  padding: 0 6px;
+  border: none;
+  background: transparent;
+  border-radius: var(--radius-sm);
+  color: var(--text-secondary);
+  font-size: 0.82rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: background 0.12s ease, color 0.12s ease;
+}
+.re-btn:hover { background: var(--bg-hover); color: var(--text); }
+.re-btn.active { background: var(--accent-soft); color: var(--accent-text); }
+.re-btn .mono { font-family: ui-monospace, "SF Mono", Menlo, monospace; font-size: 0.72rem; }
+.re-italic i { font-style: italic; }
+.re-tbtn { font-size: 0.74rem; font-weight: 500; padding: 0 7px; }
+.re-color-ico {
+  font-weight: 700;
+  border-bottom: 2px solid var(--accent);
+  line-height: 1;
+  padding-bottom: 1px;
+}
+.re-content { background: var(--surface); }
+
+/* Renk / vurgu paleti */
+.re-palette {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 6px;
+  padding: 8px 10px;
+  border-bottom: 1px solid var(--border);
+  background: var(--bg-sidebar);
+}
+.re-palette-label {
+  font-size: 0.74rem;
+  font-weight: 500;
+  color: var(--text-secondary);
+  margin-right: 2px;
+}
+.re-swatch {
+  width: 20px;
+  height: 20px;
+  border: 1px solid var(--border-strong);
+  border-radius: 5px;
+  cursor: pointer;
+  transition: transform 0.1s ease;
+}
+.re-swatch:hover { transform: scale(1.12); }
+.re-swatch-clear {
+  display: grid;
+  place-items: center;
+  background: var(--surface);
+  color: var(--text-secondary);
+  font-size: 0.7rem;
+}

@@ -1,0 +1,111 @@
+<div class="re">
+  <div class="re-toolbar" (mousedown)="$event.preventDefault()">
+    <div class="re-group">
+      <button type="button" class="re-btn" [class.active]="state()['bold']" (click)="toggleBold()" title="Kalın (Ctrl+B)"><b>B</b></button>
+      <button type="button" class="re-btn re-italic" [class.active]="state()['italic']" (click)="toggleItalic()" title="İtalik (Ctrl+I)"><i>I</i></button>
+      <button type="button" class="re-btn re-underline" [class.active]="state()['underline']" (click)="toggleUnderline()" title="Altı çizili (Ctrl+U)"><u>U</u></button>
+      <button type="button" class="re-btn re-strike" [class.active]="state()['strike']" (click)="toggleStrike()" title="Üstü çizili"><s>S</s></button>
+      <button type="button" class="re-btn" [class.active]="state()['code']" (click)="toggleCode()" title="Satır içi kod"><span class="mono">&lt;/&gt;</span></button>
+    </div>
+
+    <span class="re-sep"></span>
+
+    <div class="re-group">
+      <button type="button" class="re-btn" [class.active]="state()['h1']" (click)="setHeading(1)" title="Başlık 1">H1</button>
+      <button type="button" class="re-btn" [class.active]="state()['h2']" (click)="setHeading(2)" title="Başlık 2">H2</button>
+      <button type="button" class="re-btn" [class.active]="state()['h3']" (click)="setHeading(3)" title="Başlık 3">H3</button>
+    </div>
+
+    <span class="re-sep"></span>
+
+    <div class="re-group">
+      <button type="button" class="re-btn" [class.active]="state()['bullet']" (click)="toggleBullet()" title="Madde işaretli liste">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M8 6h13M8 12h13M8 18h13" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/><circle cx="3.5" cy="6" r="1.3" fill="currentColor"/><circle cx="3.5" cy="12" r="1.3" fill="currentColor"/><circle cx="3.5" cy="18" r="1.3" fill="currentColor"/></svg>
+      </button>
+      <button type="button" class="re-btn" [class.active]="state()['ordered']" (click)="toggleOrdered()" title="Numaralı liste">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M10 6h11M10 12h11M10 18h11" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/><text x="2" y="8" font-size="7" fill="currentColor">1</text><text x="2" y="14" font-size="7" fill="currentColor">2</text><text x="2" y="20" font-size="7" fill="currentColor">3</text></svg>
+      </button>
+      <button type="button" class="re-btn" [class.active]="state()['blockquote']" (click)="toggleBlockquote()" title="Alıntı">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M5 5v6h6V5H5Zm0 6c0 3 1 4 4 5M13 5v6h6V5h-6Zm0 6c0 3 1 4 4 5" stroke="currentColor" stroke-width="1.6" stroke-linejoin="round"/></svg>
+      </button>
+      <button type="button" class="re-btn" [class.active]="state()['codeBlock']" (click)="toggleCodeBlock()" title="Kod bloğu">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M9 8l-4 4 4 4M15 8l4 4-4 4" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg>
+      </button>
+    </div>
+
+    <span class="re-sep"></span>
+
+    <div class="re-group">
+      <button type="button" class="re-btn" [class.active]="state()['task']" (click)="toggleTaskList()" title="Yapılacak listesi">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg"><rect x="3" y="4" width="6" height="6" rx="1.5" stroke="currentColor" stroke-width="1.7"/><path d="M4.5 7l1.2 1.2L8 6M12 6h9M12 17h9" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"/><rect x="3" y="14" width="6" height="6" rx="1.5" stroke="currentColor" stroke-width="1.7"/></svg>
+      </button>
+      <button type="button" class="re-btn" [class.active]="state()['link']" (click)="setLink()" title="Bağlantı">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M9 12a3 3 0 0 1 3-3h3a3 3 0 1 1 0 6h-1.5M15 12a3 3 0 0 1-3 3H9a3 3 0 1 1 0-6h1.5" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"/></svg>
+      </button>
+      <button type="button" class="re-btn" (click)="insertImage()" title="Görsel ekle (URL)">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg"><rect x="3" y="4" width="18" height="16" rx="2" stroke="currentColor" stroke-width="1.7"/><circle cx="8.5" cy="9" r="1.5" stroke="currentColor" stroke-width="1.5"/><path d="M21 16l-5-5L5 20" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"/></svg>
+      </button>
+      <button type="button" class="re-btn" [class.active]="state()['table']" (click)="insertTable()" title="Tablo ekle (3×3)">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg"><rect x="3" y="4" width="18" height="16" rx="1.5" stroke="currentColor" stroke-width="1.7"/><path d="M3 10h18M3 15h18M9 4v16M15 4v16" stroke="currentColor" stroke-width="1.5"/></svg>
+      </button>
+    </div>
+
+    <span class="re-sep"></span>
+
+    <div class="re-group">
+      <button type="button" class="re-btn" [class.active]="textColorOpen()" (click)="toggleTextColorMenu()" title="Metin rengi">
+        <span class="re-color-ico">A</span>
+      </button>
+      <button type="button" class="re-btn" [class.active]="state()['highlight'] || highlightOpen()" (click)="toggleHighlightMenu()" title="Vurgu">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M4 20h16M5 16l9-9 3 3-9 9H5v-3Z" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"/></svg>
+      </button>
+      <button type="button" class="re-btn" (click)="setHr()" title="Ayraç çizgi">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M4 12h16" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/></svg>
+      </button>
+    </div>
+
+    @if (state()['table']) {
+      <span class="re-sep"></span>
+      <div class="re-group">
+        <button type="button" class="re-btn re-tbtn" (click)="addColumn()" title="Sütun ekle">+Sütun</button>
+        <button type="button" class="re-btn re-tbtn" (click)="addRow()" title="Satır ekle">+Satır</button>
+        <button type="button" class="re-btn re-tbtn" (click)="deleteColumn()" title="Sütun sil">−Sütun</button>
+        <button type="button" class="re-btn re-tbtn" (click)="deleteRow()" title="Satır sil">−Satır</button>
+        <button type="button" class="re-btn re-tbtn" (click)="deleteTable()" title="Tabloyu sil">⌫ Tablo</button>
+      </div>
+    }
+
+    <span class="re-sep"></span>
+
+    <div class="re-group">
+      <button type="button" class="re-btn" (click)="undo()" title="Geri al">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M9 7L4 12l5 5M4 12h11a5 5 0 0 1 0 10h-1" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"/></svg>
+      </button>
+      <button type="button" class="re-btn" (click)="redo()" title="İleri al">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M15 7l5 5-5 5M20 12H9a5 5 0 0 0 0 10h1" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"/></svg>
+      </button>
+    </div>
+  </div>
+
+  @if (textColorOpen()) {
+    <div class="re-palette" (mousedown)="$event.preventDefault()">
+      <span class="re-palette-label">Metin rengi</span>
+      @for (c of textColors; track c) {
+        <button type="button" class="re-swatch" [style.background]="c" (click)="applyColor(c)" [title]="c"></button>
+      }
+      <button type="button" class="re-swatch re-swatch-clear" (click)="clearColor()" title="Varsayılan">✕</button>
+    </div>
+  }
+
+  @if (highlightOpen()) {
+    <div class="re-palette" (mousedown)="$event.preventDefault()">
+      <span class="re-palette-label">Vurgu</span>
+      @for (c of highlightColors; track c) {
+        <button type="button" class="re-swatch" [style.background]="c" (click)="applyHighlight(c)" [title]="c"></button>
+      }
+      <button type="button" class="re-swatch re-swatch-clear" (click)="clearHighlight()" title="Kaldır">✕</button>
+    </div>
+  }
+
+  <div class="re-content" #host></div>
+</div>

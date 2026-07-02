@@ -1,0 +1,76 @@
+<div class="auth-shell">
+  <div class="auth-card">
+    <div class="brand">
+      <span class="brand-mark">
+        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+          <path d="M5 4.5A2.5 2.5 0 0 1 7.5 2H17a2 2 0 0 1 2 2v16a2 2 0 0 1-2 2H7.5A2.5 2.5 0 0 1 5 19.5v-15Z" stroke="currentColor" stroke-width="1.8"/>
+          <path d="M9 7h6M9 11h6M9 15h3" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/>
+        </svg>
+      </span>
+      <span class="brand-name">DevNote</span>
+    </div>
+
+    <div class="auth-head">
+      @if (isSignup()) {
+        <h1>Hesap oluştur</h1>
+        <p>Davet edildiğin projelere erişmek için kayıt ol.</p>
+      } @else {
+        <h1>Tekrar hoş geldin</h1>
+        <p>Projelerine erişmek için giriş yap.</p>
+      }
+    </div>
+
+    <form [formGroup]="form" (ngSubmit)="submit()">
+      <div class="field">
+        <label class="field-label" for="email">E-posta</label>
+        <input
+          id="email"
+          class="input"
+          type="email"
+          placeholder="ornek@eposta.com"
+          autocomplete="email"
+          formControlName="email"
+        />
+      </div>
+
+      <div class="field">
+        <label class="field-label" for="password">Şifre</label>
+        <input
+          id="password"
+          class="input"
+          type="password"
+          placeholder="••••••••"
+          [attr.autocomplete]="isSignup() ? 'new-password' : 'current-password'"
+          formControlName="password"
+        />
+      </div>
+
+      @if (info()) {
+        <div class="auth-info">{{ info() }}</div>
+      }
+      @if (error()) {
+        <div class="error-box auth-error">{{ error() }}</div>
+      }
+
+      <button type="submit" class="btn btn-primary btn-block auth-submit" [disabled]="loading()">
+        @if (loading()) {
+          {{ isSignup() ? 'Kaydolunuyor…' : 'Giriş yapılıyor…' }}
+        } @else {
+          {{ isSignup() ? 'Kayıt Ol' : 'Giriş Yap' }}
+        }
+      </button>
+    </form>
+
+    <p class="auth-switch">
+      @if (isSignup()) {
+        Zaten hesabın var mı?
+        <button type="button" class="auth-link" (click)="toggleMode()">Giriş yap</button>
+      } @else {
+        Hesabın yok mu?
+        <button type="button" class="auth-link" (click)="toggleMode()">Kayıt ol</button>
+      }
+    </p>
+  </div>
+
+  <p class="auth-footer">DevNote · proje hafıza defteriniz</p>
+</div>

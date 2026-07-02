@@ -1,0 +1,392 @@
+/*
+ * DevNote — Global Stylesheet & Design System
+ * ----------------------------------------------------------------------------
+ * Saf Angular (web). Notion + Obsidian'dan ilham alan tasarım dili:
+ * sade tipografi, nötr palet, mor vurgu, kenar çubuklu workspace düzeni.
+ */
+
+/* ---------------------------------------------------------------------------
+ * Tasarım Token'ları
+ * ------------------------------------------------------------------------- */
+:root {
+  /* Yüzeyler */
+  --bg:            #ffffff;
+  --bg-sidebar:    #fbfbfa;
+  --bg-hover:      rgba(55, 53, 47, 0.055);
+  --bg-active:     rgba(55, 53, 47, 0.09);
+  --surface:       #ffffff;
+
+  /* Kenarlıklar */
+  --border:        rgba(55, 53, 47, 0.09);
+  --border-strong: rgba(55, 53, 47, 0.16);
+
+  /* Metin (Notion'ın imza tonları) */
+  --text:           #37352f;
+  --text-secondary: rgba(55, 53, 47, 0.65);
+  --text-tertiary:  rgba(55, 53, 47, 0.4);
+
+  /* Vurgu (Obsidian moru) */
+  --accent:        #7c5cff;
+  --accent-hover:  #6a48f0;
+  --accent-soft:   rgba(124, 92, 255, 0.12);
+  --accent-ring:   rgba(124, 92, 255, 0.25);
+  --accent-text:   #5b3fd1;
+
+  /* Gölgeler */
+  --shadow-sm: 0 1px 2px rgba(15, 15, 15, 0.05), 0 1px 4px rgba(15, 15, 15, 0.06);
+  --shadow-md: 0 4px 14px rgba(15, 15, 15, 0.08);
+  --shadow-lg: rgba(15, 15, 15, 0.05) 0 0 0 1px, rgba(15, 15, 15, 0.1) 0 12px 32px, rgba(15, 15, 15, 0.08) 0 4px 10px;
+
+  /* Yarıçaplar (Notion ölçülü kullanır) */
+  --radius-sm: 6px;
+  --radius-md: 8px;
+  --radius-lg: 12px;
+
+  --font: "Inter", -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", sans-serif;
+}
+
+* { box-sizing: border-box; }
+
+html, body { height: 100%; }
+
+body {
+  margin: 0;
+  font-family: var(--font);
+  font-size: 15px;
+  line-height: 1.5;
+  color: var(--text);
+  background: var(--bg);
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+h1, h2, h3, h4, p { margin: 0; }
+
+button { font-family: inherit; }
+
+/* ---------------------------------------------------------------------------
+ * Butonlar
+ * ------------------------------------------------------------------------- */
+.btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 7px;
+  height: 36px;
+  padding: 0 14px;
+  border: 1px solid transparent;
+  border-radius: var(--radius-sm);
+  font-size: 0.9rem;
+  font-weight: 500;
+  line-height: 1;
+  cursor: pointer;
+  transition: background 0.12s ease, border-color 0.12s ease, box-shadow 0.12s ease;
+  white-space: nowrap;
+}
+.btn:disabled { opacity: 0.5; cursor: not-allowed; }
+
+.btn-primary {
+  background: var(--accent);
+  color: #fff;
+}
+.btn-primary:not(:disabled):hover { background: var(--accent-hover); }
+
+.btn-ghost {
+  background: transparent;
+  color: var(--text-secondary);
+  border-color: var(--border-strong);
+}
+.btn-ghost:not(:disabled):hover { background: var(--bg-hover); color: var(--text); }
+
+.btn-subtle {
+  background: transparent;
+  color: var(--text-secondary);
+}
+.btn-subtle:not(:disabled):hover { background: var(--bg-hover); color: var(--text); }
+
+.btn-block { width: 100%; }
+
+/* ---------------------------------------------------------------------------
+ * Form alanları
+ * ------------------------------------------------------------------------- */
+.field { margin-bottom: 14px; }
+.field:last-child { margin-bottom: 0; }
+
+.field-label {
+  display: block;
+  margin-bottom: 6px;
+  font-size: 0.8rem;
+  font-weight: 500;
+  color: var(--text-secondary);
+}
+
+.input {
+  width: 100%;
+  height: 38px;
+  padding: 0 12px;
+  border: 1px solid var(--border-strong);
+  border-radius: var(--radius-sm);
+  background: var(--surface);
+  font-family: inherit;
+  font-size: 0.9rem;
+  color: var(--text);
+  transition: border-color 0.12s ease, box-shadow 0.12s ease;
+}
+.input::placeholder { color: var(--text-tertiary); }
+.input:focus {
+  outline: none;
+  border-color: var(--accent);
+  box-shadow: 0 0 0 3px var(--accent-ring);
+}
+
+textarea.input {
+  height: auto;
+  min-height: 76px;
+  padding: 9px 12px;
+  line-height: 1.5;
+  resize: vertical;
+}
+
+/* ---------------------------------------------------------------------------
+ * Durum rozetleri
+ * ------------------------------------------------------------------------- */
+.badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  height: 22px;
+  padding: 0 9px;
+  border-radius: var(--radius-sm);
+  font-size: 0.75rem;
+  font-weight: 500;
+  white-space: nowrap;
+}
+.badge::before {
+  content: "";
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  background: currentColor;
+}
+
+.badge-gray   { color: #6b6b6b; background: #f1f1ef; }
+.badge-blue   { color: #2563eb; background: #eaf1fb; }
+.badge-violet { color: #7c3aed; background: #f1ebfd; }
+.badge-red    { color: #dc2626; background: #fbeae9; }
+.badge-amber  { color: #92660e; background: #fbf3e3; }
+.badge-orange { color: #c2410c; background: #faebdd; }
+.badge-green  { color: #15803d; background: #e7f3ec; }
+.badge-zinc   { color: #6b6b6b; background: #f7f7f5; }
+
+/* ---------------------------------------------------------------------------
+ * Yardımcı: hata kutusu
+ * ------------------------------------------------------------------------- */
+.error-box {
+  padding: 10px 12px;
+  font-size: 0.85rem;
+  color: #c2362f;
+  background: #fbeae9;
+  border: 1px solid #f3cfca;
+  border-radius: var(--radius-sm);
+}
+
+/* ---------------------------------------------------------------------------
+ * Zengin metin — TipTap editör (.ProseMirror) + görüntüleme (.rich-content)
+ * ortak tipografi. CSS değişkenleriyle koyu temaya da uyar.
+ * ------------------------------------------------------------------------- */
+.ProseMirror {
+  min-height: 150px;
+  padding: 12px 14px;
+  outline: none;
+}
+.ProseMirror:focus { outline: none; }
+
+/* Placeholder (boş editör) */
+.ProseMirror p.is-editor-empty:first-child::before {
+  content: attr(data-placeholder);
+  float: left;
+  height: 0;
+  color: var(--text-tertiary);
+  pointer-events: none;
+}
+
+.rich-content, .ProseMirror {
+  font-size: 0.92rem;
+  line-height: 1.65;
+  color: var(--text);
+  word-break: break-word;
+}
+.rich-content > * + *, .ProseMirror > * + * { margin-top: 0.6em; }
+
+.rich-content h1, .ProseMirror h1 { font-size: 1.35rem; font-weight: 600; letter-spacing: -0.02em; }
+.rich-content h2, .ProseMirror h2 { font-size: 1.15rem; font-weight: 600; letter-spacing: -0.01em; }
+.rich-content h3, .ProseMirror h3 { font-size: 1rem; font-weight: 600; }
+
+.rich-content ul, .ProseMirror ul,
+.rich-content ol, .ProseMirror ol { padding-left: 1.4em; }
+.rich-content ul, .ProseMirror ul { list-style: disc; }
+.rich-content ol, .ProseMirror ol { list-style: decimal; }
+.rich-content li, .ProseMirror li { margin: 2px 0; }
+.rich-content li > p, .ProseMirror li > p { margin: 0; }
+
+.rich-content blockquote, .ProseMirror blockquote {
+  padding-left: 14px;
+  border-left: 3px solid var(--border-strong);
+  color: var(--text-secondary);
+}
+
+.rich-content a, .ProseMirror a {
+  color: var(--accent-text);
+  text-decoration: underline;
+  text-underline-offset: 2px;
+  cursor: pointer;
+}
+
+.rich-content code, .ProseMirror code {
+  font-family: ui-monospace, "SF Mono", Menlo, Consolas, monospace;
+  font-size: 0.85em;
+  padding: 1px 5px;
+  border-radius: 5px;
+  background: var(--bg-active);
+}
+
+.rich-content pre, .ProseMirror pre {
+  padding: 12px 14px;
+  border-radius: var(--radius-sm);
+  background: var(--bg-active);
+  overflow-x: auto;
+  font-family: ui-monospace, "SF Mono", Menlo, Consolas, monospace;
+  font-size: 0.85rem;
+  line-height: 1.5;
+}
+.rich-content pre code, .ProseMirror pre code {
+  padding: 0;
+  background: none;
+  font-size: inherit;
+}
+
+.rich-content hr, .ProseMirror hr {
+  border: none;
+  border-top: 1px solid var(--border-strong);
+  margin: 1em 0;
+}
+
+/* Yapılacak listesi (checkbox) */
+.rich-content ul[data-type="taskList"], .ProseMirror ul[data-type="taskList"] {
+  list-style: none;
+  padding-left: 0;
+}
+.rich-content ul[data-type="taskList"] li, .ProseMirror ul[data-type="taskList"] li {
+  display: flex;
+  align-items: flex-start;
+  gap: 8px;
+}
+.rich-content ul[data-type="taskList"] li > label, .ProseMirror ul[data-type="taskList"] li > label {
+  margin-top: 3px;
+  flex-shrink: 0;
+  user-select: none;
+}
+.rich-content ul[data-type="taskList"] li > div, .ProseMirror ul[data-type="taskList"] li > div { flex: 1; min-width: 0; }
+.rich-content ul[data-type="taskList"] input[type="checkbox"] { pointer-events: none; }
+.rich-content ul[data-type="taskList"] li[data-checked="true"] > div,
+.ProseMirror ul[data-type="taskList"] li[data-checked="true"] > div {
+  color: var(--text-tertiary);
+  text-decoration: line-through;
+}
+
+/* Görsel */
+.rich-content img, .ProseMirror img {
+  max-width: 100%;
+  height: auto;
+  border-radius: var(--radius-sm);
+}
+.ProseMirror img.ProseMirror-selectednode { outline: 2px solid var(--accent); }
+
+/* Tablo */
+.rich-content table, .ProseMirror table {
+  border-collapse: collapse;
+  width: 100%;
+  margin: 0.4em 0;
+  overflow: hidden;
+}
+.rich-content th, .ProseMirror th,
+.rich-content td, .ProseMirror td {
+  border: 1px solid var(--border-strong);
+  padding: 6px 9px;
+  vertical-align: top;
+  text-align: left;
+}
+.rich-content th, .ProseMirror th {
+  background: var(--bg-active);
+  font-weight: 600;
+}
+.ProseMirror .selectedCell { background: var(--accent-soft); }
+.ProseMirror .column-resize-handle {
+  position: absolute;
+  right: -2px;
+  top: 0;
+  bottom: 0;
+  width: 3px;
+  background: var(--accent);
+}
+.ProseMirror table { table-layout: fixed; }
+.tableWrapper { overflow-x: auto; }
+
+/* İnce kaydırma çubuğu (Notion/Obsidian hissi) */
+::-webkit-scrollbar { width: 11px; height: 11px; }
+::-webkit-scrollbar-thumb {
+  background: rgba(55, 53, 47, 0.18);
+  border: 3px solid transparent;
+  border-radius: 8px;
+  background-clip: padding-box;
+}
+::-webkit-scrollbar-thumb:hover { background: rgba(55, 53, 47, 0.3); background-clip: padding-box; }
+
+/* ---------------------------------------------------------------------------
+ * Koyu tema (Obsidian'a yakın)
+ * ------------------------------------------------------------------------- */
+:root[data-theme="dark"] {
+  color-scheme: dark;
+
+  --bg:            #1b1b1b;
+  --bg-sidebar:    #161616;
+  --bg-hover:      rgba(255, 255, 255, 0.06);
+  --bg-active:     rgba(255, 255, 255, 0.1);
+  --surface:       #202020;
+
+  --border:        rgba(255, 255, 255, 0.09);
+  --border-strong: rgba(255, 255, 255, 0.17);
+
+  --text:           #e4e3e0;
+  --text-secondary: rgba(255, 255, 255, 0.56);
+  --text-tertiary:  rgba(255, 255, 255, 0.36);
+
+  --accent:        #8b6dff;
+  --accent-hover:  #9d83ff;
+  --accent-soft:   rgba(139, 109, 255, 0.16);
+  --accent-ring:   rgba(139, 109, 255, 0.32);
+  --accent-text:   #b3a0ff;
+
+  --shadow-sm: 0 1px 2px rgba(0, 0, 0, 0.4);
+  --shadow-md: 0 6px 18px rgba(0, 0, 0, 0.5);
+  --shadow-lg: rgba(0, 0, 0, 0.5) 0 0 0 1px, rgba(0, 0, 0, 0.6) 0 14px 36px;
+
+  /* Durum rozetleri — koyu zeminde yarı saydam tonlar */
+  .badge-gray   { color: #b9b9b6; background: rgba(255, 255, 255, 0.08); }
+  .badge-blue   { color: #8ab4f8; background: rgba(138, 180, 248, 0.14); }
+  .badge-violet { color: #c4b1ff; background: rgba(196, 177, 255, 0.16); }
+  .badge-red    { color: #f08f87; background: rgba(240, 143, 135, 0.15); }
+  .badge-amber  { color: #e6c06a; background: rgba(230, 192, 106, 0.15); }
+  .badge-orange { color: #f0a877; background: rgba(240, 168, 119, 0.15); }
+  .badge-green  { color: #79c794; background: rgba(121, 199, 148, 0.15); }
+  .badge-zinc   { color: #a8a8a4; background: rgba(255, 255, 255, 0.06); }
+
+  .error-box {
+    color: #f0a8a2;
+    background: rgba(220, 60, 50, 0.12);
+    border-color: rgba(220, 60, 50, 0.3);
+  }
+
+  ::-webkit-scrollbar-thumb { background: rgba(255, 255, 255, 0.18); background-clip: padding-box; }
+  ::-webkit-scrollbar-thumb:hover { background: rgba(255, 255, 255, 0.28); background-clip: padding-box; }
+}

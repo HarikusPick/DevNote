@@ -1,0 +1,584 @@
+<app-workspace-shell>
+  <a class="back-link" routerLink="/projects">
+    <svg width="15" height="15" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+      <path d="M15 18l-6-6 6-6" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+    </svg>
+    Projeler
+  </a>
+
+  @if (loading()) {
+    <div class="state">Yükleniyor…</div>
+  } @else if (error() && !project()) {
+    <div class="error-box">{{ error() }}</div>
+  } @else if (project(); as p) {
+    <div class="detail-head">
+      <h1>{{ p.name }}</h1>
+      @if (p.description) {
+        <p class="detail-desc">{{ p.description }}</p>
+      }
+    </div>
+
+    @if (error()) {
+      <div class="error-box detail-error">{{ error() }}</div>
+    }
+
+    <!-- Özet ("kaldığım yer") — tüm hesaplama SnapshotService'te -->
+    @if (snapshot(); as snap) {
+      <section class="snapshot">
+        <div class="snap-next">
+          <span class="snap-label">Sıradaki aksiyon</span>
+          @if (snap.nextAction) {
+            <p class="snap-next-text">{{ snap.nextAction }}</p>
+          } @else {
+            <p class="snap-next-text snap-next-text--empty">Henüz belirlenmedi — yukarıdan ekleyebilirsin.</p>
+          }
+        </div>
+
+        @if (snap.blocked.length > 0) {
+          <div class="snap-block snap-block--danger">
+            <span class="snap-label">
+              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                <path d="M12 9v4M12 17h.01M10.3 3.9 2.4 17.5A2 2 0 0 0 4.1 20.5h15.8a2 2 0 0 0 1.7-3L13.7 3.9a2 2 0 0 0-3.4 0Z" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"/>
+              </svg>
+              Engeller ({{ snap.blocked.length }})
+            </span>
+            <ul class="snap-list">
+              @for (t of snap.blocked; track t.id) {
+                <li>{{ t.title }}</li>
+              }
+            </ul>
+          </div>
+        }
+
+        <div class="snap-cols">
+          <div class="snap-block">
+            <span class="snap-label">Açık işler ({{ snap.openTodos.length }})</span>
+            @if (snap.openTodos.length > 0) {
+              <ul class="snap-list">
+                @for (t of snap.openTodos; track t.id) {
+                  <li>
+                    <span class="snap-dot badge-{{ todoStatusMeta[t.status].tone }}"></span>
+                    <span class="snap-item-title">{{ t.title }}</span>
+                    <span class="snap-item-meta">{{ todoStatusMeta[t.status].label }}</span>
+                  </li>
+                }
+              </ul>
+            } @else {
+              <p class="snap-empty">Açık iş yok.</p>
+            }
+          </div>
+
+          <div class="snap-block">
+            <span class="snap-label">Son dokunulanlar</span>
+            @if (snap.recent.length > 0) {
+              <ul class="snap-list">
+                @for (t of snap.recent; track t.id) {
+                  <li>
+                    <span class="snap-item-title">{{ t.title }}</span>
+                    <span class="snap-item-meta">{{ formatDate(t.updatedAt) }}</span>
+                  </li>
+                }
+              </ul>
+            } @else {
+              <p class="snap-empty">Henüz todo yok.</p>
+            }
+          </div>
+        </div>
+
+        <div class="snap-foot">
+          <span><strong>{{ snap.counts.open }}</strong> açık · <strong>{{ snap.counts.done }}</strong> tamamlandı</span>
+          @if (snap.project) {
+            <span class="snap-updated">Son güncelleme: {{ formatDate(snap.project.updatedAt) }}</span>
+          }
+        </div>
+      </section>
+    }
+
+    <!-- Düzenlenebilir proje meta alanları -->
+    <section class="panel" [formGroup]="metaForm">
+      <div class="panel-head">
+        <h2>Proje</h2>
+        @if (savingMeta()) { <span class="saving">Kaydediliyor…</span> }
+      </div>
+
+      <div class="field">
+        <label class="field-label" for="name">Proje adı</label>
+        <input
+          id="name"
+          class="input"
+          type="text"
+          placeholder="Proje adı"
+          formControlName="name"
+          (blur)="saveMeta()"
+        />
+      </div>
+
+      <div class="field">
+        <label class="field-label" for="description">Açıklama</label>
+        <textarea
+          id="description"
+          class="input"
+          rows="2"
+          placeholder="Bu proje ne hakkında?"
+          formControlName="description"
+          (blur)="saveMeta()"
+        ></textarea>
+      </div>
+
+      <div class="meta-grid">
+        <div class="field">
+          <label class="field-label" for="status">Durum</label>
+          <select id="status" class="input select" formControlName="status" (change)="saveMeta()">
+            @for (s of statusOrder; track s) {
+              <option [value]="s">{{ statusMeta[s].label }}</option>
+            }
+          </select>
+        </div>
+
+        <div class="field">
+          <label class="field-label" for="stage">Mevcut aşama</label>
+          <input
+            id="stage"
+            class="input"
+            type="text"
+            placeholder="Örn. Tasarım, MVP, test…"
+            formControlName="stage"
+            (blur)="saveMeta()"
+          />
+        </div>
+      </div>
+
+      <div class="field">
+        <label class="field-label" for="nextAction">Sıradaki aksiyon</label>
+        <input
+          id="nextAction"
+          class="input"
+          type="text"
+          placeholder="Şimdi ne yapmalıyım?"
+          formControlName="nextAction"
+          (blur)="saveMeta()"
+        />
+      </div>
+    </section>
+
+    <!-- Geçmiş (salt-okunur zaman çizelgesi) -->
+    @if (activities().length > 0) {
+      <section class="panel">
+        <div class="panel-head">
+          <h2>Geçmiş</h2>
+          <span class="muted">{{ activities().length }} olay</span>
+        </div>
+
+        <ol class="timeline">
+          @for (act of activities(); track act.id) {
+            <li class="tl-item">
+              <span class="tl-dot badge-{{ activityTone[act.type] }}">
+                @switch (act.type) {
+                  @case ('status_change') {
+                    <svg width="13" height="13" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M4 12a8 8 0 0 1 14-5m2-3v4h-4M20 12a8 8 0 0 1-14 5m-2 3v-4h4" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
+                  }
+                  @case ('next_action_change') {
+                    <svg width="13" height="13" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M5 12h14M13 6l6 6-6 6" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
+                  }
+                  @case ('todo_done') {
+                    <svg width="13" height="13" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M5 12l5 5 9-11" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
+                  }
+                  @case ('note_added') {
+                    <svg width="13" height="13" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M5 4.5A2.5 2.5 0 0 1 7.5 2H17a2 2 0 0 1 2 2v16a2 2 0 0 1-2 2H7.5A2.5 2.5 0 0 1 5 19.5v-15Z" stroke="currentColor" stroke-width="1.7"/></svg>
+                  }
+                  @default {
+                    <svg width="13" height="13" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M12 5v14M5 12h14" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg>
+                  }
+                }
+              </span>
+              <div class="tl-body">
+                <span class="tl-summary">{{ act.summary }}</span>
+                <span class="tl-date">{{ formatDate(act.createdAt) }}</span>
+              </div>
+            </li>
+          }
+        </ol>
+      </section>
+    }
+
+    <!-- Todolar -->
+    <section class="panel">
+      <div class="panel-head">
+        <h2>Todolar</h2>
+        <span class="muted">{{ todoCount() }} öğe</span>
+      </div>
+
+      <!-- Ekleme satırı -->
+      <form class="add-row" [formGroup]="addForm" (ngSubmit)="addTodo()">
+        <input
+          class="input add-title"
+          type="text"
+          placeholder="Yeni todo başlığı…"
+          formControlName="title"
+        />
+        <select class="input select add-category" formControlName="category">
+          <option value="task">Görev</option>
+          <option value="bug">Hata</option>
+        </select>
+        <button type="submit" class="btn btn-primary" [disabled]="addForm.invalid || addingTodo()">
+          {{ addingTodo() ? 'Ekleniyor…' : 'Ekle' }}
+        </button>
+      </form>
+
+      @if (todoCount() === 0) {
+        <p class="todos-empty">Henüz todo yok. Yukarıdan ilk işini ekle.</p>
+      } @else {
+        @for (group of groups(); track group.status) {
+          <div class="todo-group">
+            <div class="group-head">
+              <span class="badge badge-{{ group.tone }}">{{ group.label }}</span>
+              <span class="group-count">{{ group.items.length }}</span>
+            </div>
+
+            <div class="todo-list" cdkDropList [cdkDropListData]="group.items" (cdkDropListDropped)="dropTodo($event, group)">
+              @for (todo of group.items; track todo.id) {
+                <div class="todo-row" [class.todo-row--done]="todo.status === 'done'" cdkDrag>
+                  <button class="drag-handle" cdkDragHandle aria-label="Sürükle" title="Sürükleyerek sırala">
+                    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                      <circle cx="9" cy="6" r="1.4" fill="currentColor"/><circle cx="15" cy="6" r="1.4" fill="currentColor"/>
+                      <circle cx="9" cy="12" r="1.4" fill="currentColor"/><circle cx="15" cy="12" r="1.4" fill="currentColor"/>
+                      <circle cx="9" cy="18" r="1.4" fill="currentColor"/><circle cx="15" cy="18" r="1.4" fill="currentColor"/>
+                    </svg>
+                  </button>
+
+                  <span class="todo-title">{{ todo.title }}</span>
+                  <span class="badge badge-{{ categoryMeta[todo.category].tone }} todo-cat">
+                    {{ categoryMeta[todo.category].label }}
+                  </span>
+
+                  <select
+                    class="input select todo-status"
+                    [value]="todo.status"
+                    (change)="changeTodoStatus(todo, $any($event.target).value)"
+                  >
+                    @for (s of todoStatusOrder; track s) {
+                      <option [value]="s">{{ todoStatusMeta[s].label }}</option>
+                    }
+                  </select>
+
+                  <button class="icon-btn" (click)="deleteTodo(todo)" aria-label="Sil">
+                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                      <path d="M4 7h16M9 7V5a1 1 0 0 1 1-1h4a1 1 0 0 1 1 1v2M6 7l1 13a1 1 0 0 0 1 1h8a1 1 0 0 0 1-1l1-13" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"/>
+                    </svg>
+                  </button>
+                </div>
+              }
+            </div>
+          </div>
+        }
+      }
+    </section>
+
+    <!-- Kararlar -->
+    <section class="panel">
+      <div class="panel-head">
+        <h2>Kararlar</h2>
+        <span class="muted">{{ decisionCount() }} karar</span>
+        @if (!decisionFormOpen()) {
+          <button class="btn btn-ghost panel-head-action" (click)="openDecisionForm()">
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+              <path d="M12 5v14M5 12h14" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
+            </svg>
+            Yeni Karar
+          </button>
+        }
+      </div>
+
+      @if (decisionFormOpen()) {
+        <form class="decision-form" [formGroup]="decisionForm" (ngSubmit)="addDecision()">
+          <div class="field">
+            <label class="field-label" for="d-title">Başlık</label>
+            <input id="d-title" class="input" type="text" placeholder="Karar neyle ilgili?" formControlName="title" />
+          </div>
+          <div class="field">
+            <label class="field-label" for="d-context">Bağlam <span class="opt">— hangi durumda alındı</span></label>
+            <textarea id="d-context" class="input" rows="2" formControlName="context"></textarea>
+          </div>
+          <div class="field">
+            <label class="field-label" for="d-chosen">Seçilen yol</label>
+            <textarea id="d-chosen" class="input" rows="2" formControlName="chosen"></textarea>
+          </div>
+          <div class="field">
+            <label class="field-label" for="d-rejected">Reddedilen alternatifler</label>
+            <textarea id="d-rejected" class="input" rows="2" formControlName="rejectedAlternatives"></textarea>
+          </div>
+          <div class="field">
+            <label class="field-label" for="d-rationale">Gerekçe <span class="opt">— neden</span></label>
+            <textarea id="d-rationale" class="input" rows="2" formControlName="rationale"></textarea>
+          </div>
+          <div class="modal-actions">
+            <button type="button" class="btn btn-ghost" (click)="closeDecisionForm()" [disabled]="addingDecision()">İptal</button>
+            <button type="submit" class="btn btn-primary" [disabled]="decisionForm.invalid || addingDecision()">
+              {{ addingDecision() ? 'Ekleniyor…' : 'Karar Ekle' }}
+            </button>
+          </div>
+        </form>
+      }
+
+      @if (decisionCount() === 0 && !decisionFormOpen()) {
+        <p class="todos-empty">Henüz karar yok. Verdiğin önemli kararları ve nedenlerini buraya kaydet.</p>
+      } @else {
+        <div class="decision-list">
+          @for (d of decisions(); track d.id) {
+            <article class="decision-card" [class.decision-card--open]="expandedDecisionId() === d.id">
+              <button class="decision-head" (click)="toggleDecision(d.id)">
+                <svg class="decision-caret" width="15" height="15" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                  <path d="M9 18l6-6-6-6" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                </svg>
+                <span class="decision-title">{{ d.title }}</span>
+                <span class="decision-date">{{ formatDate(d.createdAt) }}</span>
+              </button>
+
+              @if (expandedDecisionId() === d.id) {
+                <div class="decision-body">
+                  @if (d.context) {
+                    <div class="decision-field">
+                      <span class="decision-field-label">Bağlam</span>
+                      <p>{{ d.context }}</p>
+                    </div>
+                  }
+                  @if (d.chosen) {
+                    <div class="decision-field">
+                      <span class="decision-field-label">Seçilen yol</span>
+                      <p>{{ d.chosen }}</p>
+                    </div>
+                  }
+                  @if (d.rejectedAlternatives) {
+                    <div class="decision-field">
+                      <span class="decision-field-label">Reddedilen alternatifler</span>
+                      <p>{{ d.rejectedAlternatives }}</p>
+                    </div>
+                  }
+                  @if (d.rationale) {
+                    <div class="decision-field">
+                      <span class="decision-field-label">Gerekçe</span>
+                      <p>{{ d.rationale }}</p>
+                    </div>
+                  }
+                  @if (!d.context && !d.chosen && !d.rejectedAlternatives && !d.rationale) {
+                    <p class="decision-empty">Bu karar için ek ayrıntı girilmedi.</p>
+                  }
+                  <div class="decision-actions">
+                    <button class="btn btn-ghost btn-danger" (click)="deleteDecision(d)">Sil</button>
+                  </div>
+                </div>
+              }
+            </article>
+          }
+        </div>
+      }
+    </section>
+
+    <!-- Notlar -->
+    <section class="panel">
+      <div class="panel-head">
+        <h2>Notlar</h2>
+        <span class="muted">{{ noteCount() }} not</span>
+      </div>
+
+      <div class="note-add">
+        <app-rich-editor
+          [content]="newNoteHtml()"
+          (contentChange)="newNoteHtml.set($event)"
+          placeholder="Zengin bir not yaz… başlık, liste, kalın, kod, bağlantı…"
+        />
+        <div class="note-add-actions">
+          <button type="button" class="btn btn-primary" (click)="addNote()" [disabled]="isNoteEmpty(newNoteHtml()) || addingNote()">
+            {{ addingNote() ? 'Ekleniyor…' : 'Not Ekle' }}
+          </button>
+        </div>
+      </div>
+
+      @if (noteCount() === 0) {
+        <p class="todos-empty">Henüz not yok. Yukarıdan ilk notunu ekle.</p>
+      } @else {
+        <div class="note-list">
+          @for (note of notes(); track note.id) {
+            <article class="note-card">
+              @if (editingNoteId() === note.id) {
+                <app-rich-editor
+                  [content]="editNoteHtml()"
+                  (contentChange)="editNoteHtml.set($event)"
+                />
+                <div class="note-edit-actions">
+                  <button class="btn btn-ghost" (click)="cancelEditNote()" [disabled]="savingNote()">İptal</button>
+                  <button class="btn btn-primary" (click)="saveEditNote(note)" [disabled]="isNoteEmpty(editNoteHtml()) || savingNote()">
+                    {{ savingNote() ? 'Kaydediliyor…' : 'Kaydet' }}
+                  </button>
+                </div>
+              } @else {
+                <div class="rich-content note-content" [innerHTML]="note.content"></div>
+                <div class="note-foot">
+                  <span class="note-date">{{ formatDate(note.updatedAt) }}</span>
+                  <div class="note-actions">
+                    <button class="icon-btn" (click)="startEditNote(note)" aria-label="Düzenle">
+                      <svg width="15" height="15" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                        <path d="M12 20h9M16.5 3.5a2.1 2.1 0 0 1 3 3L7 19l-4 1 1-4 12.5-12.5Z" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"/>
+                      </svg>
+                    </button>
+                    <button class="icon-btn" (click)="deleteNote(note)" aria-label="Sil">
+                      <svg width="15" height="15" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                        <path d="M4 7h16M9 7V5a1 1 0 0 1 1-1h4a1 1 0 0 1 1 1v2M6 7l1 13a1 1 0 0 0 1 1h8a1 1 0 0 0 1-1l1-13" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"/>
+                      </svg>
+                    </button>
+                  </div>
+                </div>
+              }
+            </article>
+          }
+        </div>
+      }
+    </section>
+
+    <!-- Dosyalar -->
+    <section class="panel">
+      <div class="panel-head">
+        <h2>Dosyalar</h2>
+        <span class="muted">{{ attachmentCount() }} dosya</span>
+        <label class="btn btn-ghost panel-head-action" [class.is-busy]="uploadingFile()">
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+            <path d="M12 16V4M7 9l5-5 5 5M5 20h14" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/>
+          </svg>
+          {{ uploadingFile() ? 'Yükleniyor…' : 'Dosya Yükle' }}
+          <input type="file" (change)="onFileSelected($event)" [disabled]="uploadingFile()" hidden />
+        </label>
+      </div>
+
+      @if (attachmentCount() === 0) {
+        <p class="todos-empty">Henüz dosya yok. Yukarıdan dosya yükleyebilirsin.</p>
+      } @else {
+        <div class="file-list">
+          @for (file of attachments(); track file.id) {
+            <div class="file-row">
+              <span class="file-icon">
+                <svg width="17" height="17" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                  <path d="M14 3v4a1 1 0 0 0 1 1h4" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"/>
+                  <path d="M14 3H7a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2V8l-5-5Z" stroke="currentColor" stroke-width="1.7" stroke-linejoin="round"/>
+                </svg>
+              </span>
+              <div class="file-info">
+                <span class="file-name">{{ file.fileName }}</span>
+                <span class="file-size">{{ formatSize(file.size) }}</span>
+              </div>
+              <button class="icon-btn" (click)="downloadAttachment(file)" aria-label="İndir" title="İndir">
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                  <path d="M12 4v12M7 11l5 5 5-5M5 20h14" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"/>
+                </svg>
+              </button>
+              <button class="icon-btn" (click)="deleteAttachment(file)" aria-label="Sil" title="Sil">
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                  <path d="M4 7h16M9 7V5a1 1 0 0 1 1-1h4a1 1 0 0 1 1 1v2M6 7l1 13a1 1 0 0 0 1 1h8a1 1 0 0 0 1-1l1-13" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"/>
+                </svg>
+              </button>
+            </div>
+          }
+        </div>
+      }
+    </section>
+
+    <!-- Paylaşım / Üyeler -->
+    <section class="panel">
+      <div class="panel-head">
+        <h2>Paylaşım</h2>
+        <span class="muted">{{ memberCount() }} üye</span>
+        @if (myRole()) {
+          <span class="badge badge-{{ myRole() === 'owner' ? 'violet' : myRole() === 'editor' ? 'blue' : 'zinc' }} panel-head-action">
+            Rolün: {{ roleLabel(myRole()!) }}
+          </span>
+        }
+      </div>
+
+      @if (isOwner()) {
+        <form class="invite-row" [formGroup]="inviteForm" (ngSubmit)="invite()">
+          <input class="input invite-email" type="email" placeholder="E-posta ile davet et…" formControlName="email" />
+          <select class="input select invite-role" formControlName="role">
+            <option value="editor">Editör</option>
+            <option value="viewer">Görüntüleyici</option>
+          </select>
+          <button type="submit" class="btn btn-primary" [disabled]="inviteForm.invalid || inviting()">
+            {{ inviting() ? 'Gönderiliyor…' : 'Davet Et' }}
+          </button>
+        </form>
+        @if (shareInfo()) {
+          <div class="invite-info">{{ shareInfo() }}</div>
+        }
+      }
+
+      <div class="member-list">
+        @for (m of members(); track m.userId) {
+          <div class="member-row">
+            <span class="member-avatar">{{ m.email.charAt(0).toUpperCase() }}</span>
+            <span class="member-email">{{ m.email }}</span>
+            <span class="badge badge-{{ m.role === 'owner' ? 'violet' : m.role === 'editor' ? 'blue' : 'zinc' }}">
+              {{ roleLabel(m.role) }}
+            </span>
+            @if (isOwner() && m.role !== 'owner') {
+              <button class="icon-btn" (click)="removeMember(m)" aria-label="Üyeyi çıkar" title="Çıkar">
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                  <path d="M4 7h16M9 7V5a1 1 0 0 1 1-1h4a1 1 0 0 1 1 1v2M6 7l1 13a1 1 0 0 0 1 1h8a1 1 0 0 0 1-1l1-13" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"/>
+                </svg>
+              </button>
+            }
+          </div>
+        }
+      </div>
+
+      @if (isOwner() && invitations().length > 0) {
+        <div class="invite-pending">
+          <span class="pending-label">Bekleyen davetler</span>
+          @for (inv of invitations(); track inv.id) {
+            <div class="member-row member-row--pending">
+              <span class="member-avatar member-avatar--pending">@</span>
+              <span class="member-email">{{ inv.email }}</span>
+              <span class="badge badge-zinc">{{ roleLabel(inv.role) }} · bekliyor</span>
+              <button class="icon-btn" (click)="revokeInvitation(inv)" aria-label="Daveti iptal et" title="İptal">
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                  <path d="M6 6l12 12M18 6L6 18" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
+                </svg>
+              </button>
+            </div>
+          }
+        </div>
+      }
+    </section>
+
+    <!-- Tehlikeli bölge (yalnızca sahip) -->
+    @if (isOwner()) {
+      <section class="panel danger-panel">
+        <div class="danger-text">
+          <h2>Projeyi sil</h2>
+          <p>Bu proje ve tüm todoları, notları, kararları, dosyaları ve geçmişi kalıcı olarak silinir. Geri alınamaz.</p>
+        </div>
+        <button class="btn btn-danger danger-btn" (click)="openDeleteConfirm()">Projeyi Sil</button>
+      </section>
+    }
+  }
+</app-workspace-shell>
+
+@if (confirmDeleteOpen()) {
+  <div class="modal-overlay" (click)="closeDeleteConfirm()">
+    <div class="modal" (click)="$event.stopPropagation()">
+      <div class="modal-head">
+        <h2>Projeyi sil?</h2>
+      </div>
+      <p class="confirm-text">
+        <b>{{ project()?.name }}</b> ve tüm içeriği (todolar, notlar, kararlar, dosyalar, geçmiş, üyeler)
+        kalıcı olarak silinecek. Bu işlem <b>geri alınamaz</b>.
+      </p>
+      @if (error()) {
+        <div class="error-box">{{ error() }}</div>
+      }
+      <div class="modal-actions">
+        <button class="btn btn-ghost" (click)="closeDeleteConfirm()" [disabled]="deletingProject()">Vazgeç</button>
+        <button class="btn btn-danger" (click)="deleteProject()" [disabled]="deletingProject()">
+          {{ deletingProject() ? 'Siliniyor…' : 'Evet, sil' }}
+        </button>
+      </div>
+    </div>
+  </div>
+}
